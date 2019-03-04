@@ -2,13 +2,16 @@ package main
 
 import (
 	"log"
-	"time"
 	"math/rand"
+	"sync"
+	"sync/atomic"
 )
 
 func problem1() {
 
 	log.Printf("problem1: started --------------------------------------------")
+	var wg sync.WaitGroup
+	var counter uint64
 
 	//
 	// Todo:
@@ -21,11 +24,10 @@ func problem1() {
 	//
 
 	for inx := 0; inx < 10; inx++ {
-
-		go printRandom1(inx)
-
+		go printRandom1(inx, &wg, &counter)
+		wg.Add(1)
 	}
-
+	wg.Wait()
 	//
 	// Todo:
 	//
@@ -34,20 +36,23 @@ func problem1() {
 	// go routines are finished.
 	//
 
-	time.Sleep(5 * time.Second)
-
-	log.Printf("problem1: finised --------------------------------------------")
+	log.Printf("problem1: finished --------------------------------------------")
 }
 
-func printRandom1(slot int) {
+func printRandom1(slot int, wg *sync.WaitGroup, counter *uint64) {
 
 	//
 	// Do not change 25 into 10!
 	//
 
 	for inx := 0; inx < 25; inx++ {
-
-		log.Printf("problem1: slot=%03d count=%05d rand=%f", slot, inx, rand.Float32())
-
+		count := atomic.LoadUint64(counter)
+		if count < uint64(100) {
+			atomic.AddUint64(counter, 1)
+			log.Printf("problem1: slot=%03d count=%05d rand=%f", slot, inx, rand.Float32())
+		} else {
+			break
+		}
 	}
+	wg.Done()
 }
