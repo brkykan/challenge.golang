@@ -10,7 +10,7 @@ import (
 func problem2() {
 
 	var wg sync.WaitGroup
-	tick := time.Tick(1 * time.Second)
+	tick := time.Tick(1 * time.Second) // create a channel of type time.Time that will send for every 1 second
 	log.Printf("problem2: started --------------------------------------------")
 
 	//
@@ -26,7 +26,7 @@ func problem2() {
 		go printRandom2(inx, &wg, tick)
 
 	}
-	wg.Wait()
+	wg.Wait() // block the execution until waitgroup counter is again 0
 	//
 	// Todo:
 	//
@@ -45,8 +45,8 @@ func problem2() {
 func printRandom2(slot int, wg *sync.WaitGroup, tick <-chan time.Time) {
 
 	for inx := 0; inx < 10; inx++ {
-		<-tick
+		<-tick // block the execution until it receives from Time channel `tick`
 		log.Printf("problem2: slot=%03d count=%05d rand=%f", slot, inx, rand.Float32())
 	}
-	wg.Done()
+	wg.Done() // decrement the waitgroup counter by 1
 }
